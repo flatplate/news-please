@@ -208,7 +208,7 @@ class SavepathParser(object):
             re_appendmd5_max_url_file, lambda match: SavepathParser.
             append_md5_if_too_long(
                 UrlExtractor.get_url_file_name(url),
-                SavepathParser.get_max_url_file_name_length(abs_savepath)
+                int(SavepathParser.get_max_url_file_name_length(abs_savepath))
             ), savepath
         )
 
