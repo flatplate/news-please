@@ -12,6 +12,8 @@ class ComparerDate():
 
         for article_candidate in list_article_candidate:
             if article_candidate.publish_date != None:
+                if article_candidate.extractor == "ldjson":
+                    return article_candidate.publish_date
                 list_publish_date.append((article_candidate.publish_date, article_candidate.extractor))
 
         # If there is no value in the list, return None.

@@ -62,6 +62,8 @@ class ComparerTitle():
         # Save every title from the candidates in list_title.
         for article_candidate in list_article_candidate:
             if article_candidate.title is not None:
+                if article_candidate.extractor == "ldjson":
+                    return article_candidate.title
                 list_title.append(article_candidate.title)
 
         if not list_title:

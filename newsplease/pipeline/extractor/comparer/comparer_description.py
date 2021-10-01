@@ -17,6 +17,8 @@ class ComparerDescription():
         """
         for article_candidate in list_article_candidate:
             if article_candidate.description != None:
+                if article_candidate.extractor == "ldjson":
+                    return article_candidate.description
                 list_description.append((article_candidate.description, article_candidate.extractor))
 
         # If there is no value in the list, return None.

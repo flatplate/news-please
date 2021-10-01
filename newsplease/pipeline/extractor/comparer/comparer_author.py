@@ -13,6 +13,8 @@ class ComparerAuthor():
         # The authors of the ArticleCandidates and the respective extractors are saved in a tuple in list_author.
         for article_candidate in list_article_candidate:
             if (article_candidate.author is not None) and (article_candidate.author != '[]'):
+                if article_candidate.extractor == "ldjson":
+                    return article_candidate.author
                 list_author.append((article_candidate.author, article_candidate.extractor))
 
         # If there is no value in the list, return None.

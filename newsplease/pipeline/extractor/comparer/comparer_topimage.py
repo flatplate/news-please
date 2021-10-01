@@ -24,6 +24,8 @@ class ComparerTopimage():
         for article_candidate in list_article_candidate:
             if article_candidate.topimage is not None:
                 # Changes a relative path of an image to the absolute path of the given url.
+                if article_candidate.extractor == "ldjson":
+                    return article_candidate.topimage
                 article_candidate.topimage = self.image_absoulte_path(item['url'], article_candidate.topimage)
                 list_topimage.append((article_candidate.topimage, article_candidate.extractor))
 
