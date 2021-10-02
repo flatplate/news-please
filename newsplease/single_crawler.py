@@ -108,6 +108,11 @@ class SingleCrawler(object):
             ignore_regex = "(%s)|" % \
                            self.cfg.section('Crawler')['ignore_regex']
 
+        if "cookies" in site:
+            cookies = site["cookies"]
+        else:
+            cookies = self.cfg.section('Crawler')['cookies']
+
         # Get the default crawler. The crawler can be overwritten by fallbacks.
         if "additional_rss_daemon" in site and self.daemonize:
             self.crawler_name = "RssCrawler"
@@ -151,7 +156,8 @@ class SingleCrawler(object):
 
         self.load_crawler(crawler_class,
                           site["url"],
-                          ignore_regex)
+                          ignore_regex,
+                          cookies)
 
         # start the job. if in library_mode, do not stop the reactor and so on after this job has finished
         # so that further jobs can be executed. it also needs to run in a thread since the reactor.run method seems
@@ -239,7 +245,7 @@ class SingleCrawler(object):
         spider_loader = SpiderLoader(settings)
         return spider_loader.load(crawler)
 
-    def load_crawler(self, crawler, url, ignore_regex):
+    def load_crawler(self, crawler, url, ignore_regex, cookies):
         """
         Loads the given crawler with the given url.
 
@@ -254,7 +260,8 @@ class SingleCrawler(object):
             self.helper,
             url=url,
             config=self.cfg,
-            ignore_regex=ignore_regex)
+            ignore_regex=ignore_regex,
+            cookies=cookies)
 
     def remove_jobdir_if_not_resume(self):
         """

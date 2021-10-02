@@ -28,13 +28,14 @@ class RssCrawler(scrapy.Spider):
     config = None
     helper = None
 
-    def __init__(self, helper, url, config, ignore_regex, *args, **kwargs):
+    def __init__(self, helper, url, config, ignore_regex, cookies, *args, **kwargs):
         self.log = logging.getLogger(__name__)
 
         self.config = config
         self.helper = helper
 
         self.original_url = url
+        self.cookies = cookies
 
         if url.startswith("https://news.google.com/rss"):
             self.ignored_allowed_domain = url.split("allinurl:")[-1]
@@ -42,7 +43,6 @@ class RssCrawler(scrapy.Spider):
             self.ignored_allowed_domain = self.helper.url_extractor \
                 .get_allowed_domain(url)
         self.start_urls = [url]
-        print("Allowed Domain", self.ignored_allowed_domain)
 
         super(RssCrawler, self).__init__(*args, **kwargs)
 
@@ -52,17 +52,13 @@ class RssCrawler(scrapy.Spider):
 
         :param obj response: The scrapy response
         """
-        print("RESPONSE URL", response.url)
         if any(True for _ in response.xpath("//rss")):
-            print("True")
             for x in self.rss_parse(response):
                 yield x
         else:
-            req = scrapy.Request(self.helper.url_extractor.get_rss_url(response),
-                             callback=self.rss_parse)
-            req.cookies['wp_devicetype'] = "0"
-            req.cookies['wp_gdpr'] = "1|1"
-            yield req
+            yield scrapy.Request(self.helper.url_extractor.get_rss_url(response),
+                                 callback=self.rss_parse,
+                                 cookies=self.cookies)
 
     def rss_parse(self, response):
         """
@@ -73,12 +69,10 @@ class RssCrawler(scrapy.Spider):
         for item in response.xpath('//item'):
             for url in item.xpath('link/text()').extract():
                 req = scrapy.Request(url, lambda resp: self.article_parse(
-                    resp, item.xpath('title/text()').extract()[0]))
+                    resp, item.xpath('title/text()').extract()[0]), cookies=self.cookies)
                 # TODO This is just a very ugly hack to get through
                 # washington post's gdpr page. Implement adding custom
                 # headers per site in the config and remove this.
-                req.cookies['wp_devicetype'] = "0"
-                req.cookies['wp_gdpr'] = "1|1"
                 yield req
 
     def article_parse(self, response, rss_title=None):

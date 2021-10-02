@@ -1,6 +1,7 @@
 import logging
 
 import scrapy
+from scrapy import Request
 
 from ...helper_classes.url_extractor import UrlExtractor
 
@@ -16,12 +17,13 @@ class SitemapCrawler(scrapy.spiders.SitemapSpider):
     config = None
     helper = None
 
-    def __init__(self, helper, url, config, ignore_regex, *args, **kwargs):
+    def __init__(self, helper, url, config, ignore_regex, cookies, *args, **kwargs):
         self.log = logging.getLogger(__name__)
 
         self.config = config
         self.helper = helper
         self.original_url = url
+        self.cookies = cookies
 
         self.allowed_domains = [self.helper.url_extractor
                                     .get_allowed_domain(url, config.section(
@@ -32,6 +34,10 @@ class SitemapCrawler(scrapy.spiders.SitemapSpider):
         self.log.debug(self.sitemap_urls)
 
         super(SitemapCrawler, self).__init__(*args, **kwargs)
+
+    def start_requests(self):
+        for url in self.sitemap_urls:
+            yield Request(url, self._parse_sitemap, cookies=self.cookies)
 
     def parse(self, response):
         """

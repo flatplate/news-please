@@ -36,7 +36,12 @@
       },
       # Update the condition as well, all the other heuristics are enabled in
       # newscrawler.cfg
-      "pass_heuristics_condition": "is_not_from_subdomain and og_type and self_linked_headlines and linked_headlines"
+      "pass_heuristics_condition": "is_not_from_subdomain and og_type and self_linked_headlines and linked_headlines",
+
+      # You can also set cookies for each website
+      cookies: {
+        gdpr_consent: "1"
+      }
     },
     {
       # nytimes.com should run pretty well with default config:

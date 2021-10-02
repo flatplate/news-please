@@ -27,13 +27,14 @@ class GdeltCrawler(scrapy.Spider):
     config = None
     helper = None
 
-    def __init__(self, helper, url, config, ignore_regex, *args, **kwargs):
+    def __init__(self, helper, url, config, ignore_regex, cookies, *args, **kwargs):
         self.log = logging.getLogger(__name__)
 
         self.config = config
         self.helper = helper
 
         self.original_url = url
+        self.cookies = cookies
 
         self.ignored_allowed_domain = self.helper.url_extractor \
             .get_allowed_domain(url)
@@ -76,7 +77,7 @@ class GdeltCrawler(scrapy.Spider):
             os.remove(csv_file_path)
             for url in urls:
                 yield scrapy.Request(url, lambda resp: self.article_parse(
-                    resp, 'gdelt'))
+                    resp, 'gdelt'), cookies=self.cookies)
 
     def article_parse(self, response, rss_title=None):
         """

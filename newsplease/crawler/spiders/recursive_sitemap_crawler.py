@@ -19,13 +19,14 @@ class RecursiveSitemapCrawler(scrapy.spiders.SitemapSpider):
     ignore_regex = None
     ignore_file_extensions = None
 
-    def __init__(self, helper, url, config, ignore_regex, *args, **kwargs):
+    def __init__(self, helper, url, config, ignore_regex, cookies, *args, **kwargs):
         self.log = logging.getLogger(__name__)
 
         self.config = config
         self.helper = helper
 
         self.ignore_regex = ignore_regex
+        self.cookies = cookies
         self.ignore_file_extensions = self.config.section(
             'Crawler')['ignore_file_extensions']
 
@@ -50,7 +51,7 @@ class RecursiveSitemapCrawler(scrapy.spiders.SitemapSpider):
 
         for request in self.helper.parse_crawler \
                 .recursive_requests(response, self, self.ignore_regex,
-                                    self.ignore_file_extensions):
+                                    self.ignore_file_extensions, cookies=self.cookies):
             yield request
 
         yield self.helper.parse_crawler.pass_to_pipeline_if_article(

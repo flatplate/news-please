@@ -84,7 +84,7 @@ class ParseCrawler(object):
 
     @staticmethod
     def recursive_requests(response, spider, ignore_regex='',
-                           ignore_file_extensions='pdf'):
+                           ignore_file_extensions='pdf', cookies=None):
         """
         Manages recursive requests.
         Determines urls to recursivly crawl if they do not match certain file
@@ -96,13 +96,16 @@ class ParseCrawler(object):
                                  shouldn't match
         :param str ignore_file_extensions: a regex of file extensions that the
                                            end of any url may not match
+        :param dict cookies: list of cookies to use in the request
         :return list: Scrapy Requests
         """
         # Recursivly crawl all URLs on the current page
         # that do not point to irrelevant file types
         # or contain any of the given ignore_regex regexes
+        if cookies is None:
+            cookies = {}
         return [
-            scrapy.Request(response.urljoin(href), callback=spider.parse)
+            scrapy.Request(response.urljoin(href), callback=spider.parse, cookies=cookies)
             for href in response.css("a::attr('href')").extract() if re.match(
                 r'.*\.' + ignore_file_extensions +
                 r'$', response.urljoin(href), re.IGNORECASE

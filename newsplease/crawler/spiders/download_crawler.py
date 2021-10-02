@@ -1,6 +1,7 @@
 import logging
 
 import scrapy
+from scrapy import Request
 
 
 class Download(scrapy.Spider):
@@ -12,7 +13,7 @@ class Download(scrapy.Spider):
     config = None
     helper = None
 
-    def __init__(self, helper, url, config, ignore_regex, *args, **kwargs):
+    def __init__(self, helper, url, config, ignore_regex, cookies, *args, **kwargs):
         self.log = logging.getLogger(__name__)
 
         self.config = config
@@ -23,7 +24,18 @@ class Download(scrapy.Spider):
         else:
             self.start_urls = [url]
 
+        self.cookies = cookies
+
         super(Download, self).__init__(*args, **kwargs)
+
+    def start_requests(self):
+        if not self.start_urls and hasattr(self, 'start_url'):
+            raise AttributeError(
+                "Crawling could not start: 'start_urls' not found "
+                "or empty (but found 'start_url' attribute instead, "
+                "did you miss an 's'?)")
+        for url in self.start_urls:
+            yield Request(url, dont_filter=True, cookies=self.cookies)
 
     def parse(self, response):
         """
