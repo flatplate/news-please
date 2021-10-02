@@ -34,6 +34,8 @@ class DontProxyMiddleware:
     def from_crawler(cls, crawler):
         return cls()
 
-    def process_response(self, request, response, spider):
+    def process_request(self, request, spider):
         request.meta['dont_proxy'] = True
-        return request
+
+    def process_response(self, request, response, spider):
+        return response
