@@ -4,6 +4,8 @@ from bs4 import BeautifulSoup
 from bs4.element import Tag
 import json
 from datetime import datetime
+from dateutil.parser import parse
+import re
 
 
 class LdjsonExtractor(AbstractExtractor):
@@ -58,7 +60,7 @@ class LdjsonExtractor(AbstractExtractor):
             author = None
         article_candidate.author = author
 
-        publish_date = datetime.fromisoformat(ldjson.get("datePublished").replace('Z', '+00:00')) \
+        publish_date = self.parse_datestring(ldjson.get("datePublished").replace('Z', '+00:00')) \
             if "datePublished" in ldjson \
             else None
         article_candidate.publish_date = publish_date
@@ -66,6 +68,16 @@ class LdjsonExtractor(AbstractExtractor):
         article_candidate.language = ldjson.get("@language")
 
         return article_candidate
+
+    def parse_datestring(self, datestring):
+        try:
+            return parse(datestring)
+        except:  # TODO
+            if "GMT+" in datestring:
+                parts = re.split("GMT\\+\\d{4}", datestring)
+                return parse(parts[0] + "T" + parts[1])
+            return None
+
 
     @staticmethod
     def _map_ldjson(ldjson_tag: Tag):
