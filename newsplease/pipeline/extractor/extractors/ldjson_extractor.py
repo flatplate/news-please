@@ -38,7 +38,7 @@ class LdjsonExtractor(AbstractExtractor):
             return article_candidate
         ldjson = filtered_ldjson[0]
 
-        article_candidate.title = ldjson.get("headling")
+        article_candidate.title = ldjson.get("headline")
         article_candidate.description = ldjson.get("description")
         article_candidate.text = None
         image = ldjson.get("image")
