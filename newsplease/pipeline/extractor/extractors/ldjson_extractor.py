@@ -13,6 +13,7 @@ class LdjsonExtractor(AbstractExtractor):
     Extractor that uses the ld+json data inside a web page
     to extract metadata.
     """
+    # TODO Move the ldjson extraction to helpers since it is also used in heuristics and is duplicate
 
     def __init__(self):
         self.name = "ldjson"
@@ -34,6 +35,12 @@ class LdjsonExtractor(AbstractExtractor):
             return article_candidate
 
         parsed_ldjson = [self._map_ldjson(ldjson_tag) for ldjson_tag in ldjson_candidates]
+        for single_ldjson in parsed_ldjson:
+            if "@graph" in single_ldjson:
+                if isinstance(single_ldjson["@graph"], list):
+                    parsed_ldjson.extend(single_ldjson["@graph"])
+                elif isinstance(single_ldjson["@graph"], dict):
+                    parsed_ldjson.append(single_ldjson["@graph"])
         filtered_ldjson = [ldjson for ldjson in parsed_ldjson if "@type" in ldjson and ldjson["@type"] == "NewsArticle"]
 
         if not filtered_ldjson:
@@ -50,7 +57,7 @@ class LdjsonExtractor(AbstractExtractor):
             elif isinstance(image[0], dict):
                 article_candidate.topimage = image[0]['url']
         elif isinstance(image, dict):
-            article_candidate.topimage = image['url']
+            article_candidate.topimage = image.get('url')
         elif isinstance(image, str):
             article_candidate.topimage = image
 

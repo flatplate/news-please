@@ -70,6 +70,12 @@ class Heuristics(HeuristicsManager):
             return False
 
         parsed_ldjson = [_map_ldjson(ldjson_tag) for ldjson_tag in ldjson_candidates]
+        for single_ldjson in parsed_ldjson:
+            if "@graph" in single_ldjson:
+                if isinstance(single_ldjson["@graph"], list):
+                    parsed_ldjson.extend(single_ldjson["@graph"])
+                elif isinstance(single_ldjson["@graph"], dict):
+                    parsed_ldjson.append(single_ldjson["@graph"])
         filtered_ldjson = [ldjson for ldjson in parsed_ldjson if "@type" in ldjson and ldjson["@type"] == "NewsArticle"]
 
         if not filtered_ldjson:
