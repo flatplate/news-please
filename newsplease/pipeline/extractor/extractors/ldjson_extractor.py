@@ -41,7 +41,8 @@ class LdjsonExtractor(AbstractExtractor):
                     parsed_ldjson.extend(single_ldjson["@graph"])
                 elif isinstance(single_ldjson["@graph"], dict):
                     parsed_ldjson.append(single_ldjson["@graph"])
-        filtered_ldjson = [ldjson for ldjson in parsed_ldjson if "@type" in ldjson and ldjson["@type"] == "NewsArticle"]
+        filtered_ldjson = [ldjson for ldjson in parsed_ldjson
+                           if "@type" in ldjson and ldjson["@type"] in ["NewsArticle", "Article"]]
 
         if not filtered_ldjson:
             return article_candidate
