@@ -67,16 +67,13 @@ class Heuristics(HeuristicsManager):
         ldjson_candidates = soup.select('script[type="application/ld+json"]')
 
         if not ldjson_candidates:
-            print("LDJSONHEURISTIC BLOCKED")
             return False
 
         parsed_ldjson = [_map_ldjson(ldjson_tag) for ldjson_tag in ldjson_candidates]
         filtered_ldjson = [ldjson for ldjson in parsed_ldjson if "@type" in ldjson and ldjson["@type"] == "NewsArticle"]
 
         if not filtered_ldjson:
-            print("LDJSONHEURISTIC BLOCKED")
             return False
-        print("LDJSONHEURISTIC GO")
         return True
 
     @staticmethod
