@@ -27,7 +27,7 @@ class LdjsonExtractor(AbstractExtractor):
         article_candidate = ArticleCandidate()
         article_candidate.extractor = self._name()
 
-        soup = BeautifulSoup(item['spider_response'].body)
+        soup = BeautifulSoup(item['spider_response'].body, parser="lxml")
         ldjson_candidates = soup.select('script[type="application/ld+json"]')
 
         if not ldjson_candidates:
@@ -45,7 +45,10 @@ class LdjsonExtractor(AbstractExtractor):
         article_candidate.text = None
         image = ldjson.get("image")
         if isinstance(image, list) and image:
-            article_candidate.topimage = image[0]['url']
+            if isinstance(image[0], str):
+                article_candidate.topimage = image[0]
+            elif isinstance(image[0], dict):
+                article_candidate.topimage = image[0]['url']
         elif isinstance(image, dict):
             article_candidate.topimage = image['url']
         elif isinstance(image, str):

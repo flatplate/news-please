@@ -1,13 +1,23 @@
 """
 Helper class for testing heuristics
 """
+import json
 import re
+
+from bs4 import BeautifulSoup, Tag
 
 from .sub_classes.heuristics_manager import HeuristicsManager
 from .url_extractor import UrlExtractor
 
 # to improve performance, regex statements are compiled only once per module
 re_url_root = re.compile(r'https?://[a-z]+.')
+
+
+def _map_ldjson(ldjson_tag: Tag):
+    try:
+        return json.loads(ldjson_tag.encode_contents())
+    except json.JSONDecodeError:
+        return None
 
 
 class Heuristics(HeuristicsManager):
@@ -49,6 +59,24 @@ class Heuristics(HeuristicsManager):
 
         if not contains_meta:
             return False
+        return True
+
+    def ldjson_type_is_newsarticle(self, response, site_dict):
+
+        soup = BeautifulSoup(response.body.decode("utf-8"), parser="lxml")
+        ldjson_candidates = soup.select('script[type="application/ld+json"]')
+
+        if not ldjson_candidates:
+            print("LDJSONHEURISTIC BLOCKED")
+            return False
+
+        parsed_ldjson = [_map_ldjson(ldjson_tag) for ldjson_tag in ldjson_candidates]
+        filtered_ldjson = [ldjson for ldjson in parsed_ldjson if "@type" in ldjson and ldjson["@type"] == "NewsArticle"]
+
+        if not filtered_ldjson:
+            print("LDJSONHEURISTIC BLOCKED")
+            return False
+        print("LDJSONHEURISTIC GO")
         return True
 
     @staticmethod
