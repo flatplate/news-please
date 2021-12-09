@@ -18,5 +18,10 @@ ago>=0.0.9
 six>=1.10.0
 awscli>=1.11.117
 hurry.filesize>=0.9
-bs4
+bs4~=0.0.1
 cchardet>=2.1.7
+setuptools~=58.1.0
+requests~=2.26.0
+urllib3~=1.26.7
+Twisted~=21.7.0
+kafka-python~=2.0.2
