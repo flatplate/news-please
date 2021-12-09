@@ -18,6 +18,8 @@ class TooManyRequestsRetryMiddleware(RetryMiddleware):
             req = self._retry(request, reason, spider)
             if request:
                 req.meta['dont_proxy'] = False
+                if 'proxy' in req.meta and req.meta['proxy'] is None:
+                    del req.meta['proxy']
                 return req
             return response
 
@@ -26,6 +28,8 @@ class TooManyRequestsRetryMiddleware(RetryMiddleware):
             req = self._retry(request, reason, spider)
             if req:
                 req.meta['dont_proxy'] = False
+                if 'proxy' in req.meta and req.meta['proxy'] is None:
+                    del req.meta['proxy']
                 return req
             return response
         return response
@@ -40,7 +44,8 @@ class DontProxyMiddleware:
 
     def process_request(self, request, spider):
         if not 'dont_proxy' in request.meta:
-            request.meta['dont_proxy'] = True
+            request.meta['dont_proxy'] = True  # This is for the Zyte proxy middleware
+        request.meta['proxy'] = None  # This is for the scrapy http proxy middleware
 
     def process_response(self, request, response, spider):
         return response

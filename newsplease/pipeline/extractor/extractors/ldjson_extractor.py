@@ -3,7 +3,6 @@ from ..article_candidate import ArticleCandidate
 from bs4 import BeautifulSoup
 from bs4.element import Tag
 import json
-from datetime import datetime
 from dateutil.parser import parse
 import re
 
@@ -28,7 +27,7 @@ class LdjsonExtractor(AbstractExtractor):
         article_candidate = ArticleCandidate()
         article_candidate.extractor = self._name()
 
-        soup = BeautifulSoup(item['spider_response'].body, parser="lxml")
+        soup = BeautifulSoup(item['spider_response'].body, parser="lxml", features="lxml")
         ldjson_candidates = soup.select('script[type="application/ld+json"]')
 
         if not ldjson_candidates:
@@ -36,7 +35,7 @@ class LdjsonExtractor(AbstractExtractor):
 
         parsed_ldjson = [self._map_ldjson(ldjson_tag) for ldjson_tag in ldjson_candidates]
         for single_ldjson in parsed_ldjson:
-            if "@graph" in single_ldjson:
+            if hasattr(single_ldjson, '__contains__') and "@graph" in single_ldjson:
                 if isinstance(single_ldjson["@graph"], list):
                     parsed_ldjson.extend(single_ldjson["@graph"])
                 elif isinstance(single_ldjson["@graph"], dict):
@@ -88,7 +87,6 @@ class LdjsonExtractor(AbstractExtractor):
                 parts = re.split("GMT\\+\\d{4}", datestring)
                 return parse(parts[0] + "T" + parts[1])
             return None
-
 
     @staticmethod
     def _map_ldjson(ldjson_tag: Tag):

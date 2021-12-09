@@ -37,6 +37,7 @@ class RssCrawler(scrapy.Spider):
         self.original_url = url
         self.cookies = cookies
 
+        # TODO Somehow make this better
         if url.startswith("https://news.google.com/rss"):
             self.ignored_allowed_domain = url.split("allinurl:")[-1]
         else:
@@ -70,9 +71,6 @@ class RssCrawler(scrapy.Spider):
             for url in item.xpath('link/text()').extract():
                 req = scrapy.Request(url, lambda resp: self.article_parse(
                     resp, item.xpath('title/text()').extract()[0]), cookies=self.cookies)
-                # TODO This is just a very ugly hack to get through
-                # washington post's gdpr page. Implement adding custom
-                # headers per site in the config and remove this.
                 yield req
 
     def article_parse(self, response, rss_title=None):

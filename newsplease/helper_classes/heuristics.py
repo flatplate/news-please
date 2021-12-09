@@ -63,7 +63,7 @@ class Heuristics(HeuristicsManager):
 
     def ldjson_type_is_newsarticle(self, response, site_dict):
 
-        soup = BeautifulSoup(response.body.decode("utf-8"), parser="lxml")
+        soup = BeautifulSoup(response.body.decode("utf-8"), parser="lxml", features="lxml")
         ldjson_candidates = soup.select('script[type="application/ld+json"]')
 
         if not ldjson_candidates:
