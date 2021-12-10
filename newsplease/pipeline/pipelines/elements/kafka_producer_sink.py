@@ -13,6 +13,7 @@ class KafkaProducerSink(ExtractedInformationStorage):
         self.kafka_config = self.cfg.section("Kafka")
         self.bootstrap_servers = self.kafka_config.get("bootstrap_servers")
         self.topic = self.kafka_config.get("topic", "newsplease")
+        self.producer_close_timeout = self.kafka_config.get("producer_close_timeout", 1.0)
         self.kafka_version = tuple(self.kafka_config.get("api_version", [3, 0, 0]))
         self.producer = KafkaProducer(bootstrap_servers=self.bootstrap_servers,
                                       value_serializer=self.default_json_serializer,
@@ -28,7 +29,7 @@ class KafkaProducerSink(ExtractedInformationStorage):
 
     def close_spider(self):
         self.producer.flush()
-        self.producer.close()
+        self.producer.close(timeout=self.producer_close_timeout)
 
     @staticmethod
     def default_json_serializer(value):
