@@ -15,11 +15,17 @@ class KafkaProducerSink(ExtractedInformationStorage):
         self.topic = self.kafka_config.get("topic", "newsplease")
         self.producer_close_timeout = self.kafka_config.get("producer_close_timeout", 1.0)
         self.kafka_version = tuple(self.kafka_config.get("api_version", [3, 0, 0]))
-        self.producer = KafkaProducer(bootstrap_servers=self.bootstrap_servers,
-                                      value_serializer=self.default_json_serializer,
-                                      api_version=self.kafka_version)
+        try:
+            self.producer = KafkaProducer(bootstrap_servers=self.bootstrap_servers,
+                                          value_serializer=self.default_json_serializer,
+                                          api_version=self.kafka_version)
+        except KafkaError:
+            self.log.exception("Couldn't initialize kafka producer, will continue without the producer.")
+            self.producer = None
 
     def process_item(self, item, spider):
+        if self.producer is None:
+            return item
         item_dict = self.extract_relevant_info(item)
         try:
             self.producer.send(self.topic, value=item_dict)
