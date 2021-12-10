@@ -1,6 +1,7 @@
 import json
 
 from kafka import KafkaProducer
+from kafka.errors import KafkaError
 
 from newsplease.pipeline.pipelines.elements.extracted_information_storage import ExtractedInformationStorage
 
@@ -19,7 +20,10 @@ class KafkaProducerSink(ExtractedInformationStorage):
 
     def process_item(self, item, spider):
         item_dict = self.extract_relevant_info(item)
-        self.producer.send(self.topic, value=item_dict)
+        try:
+            self.producer.send(self.topic, value=item_dict)
+        except KafkaError:
+            self.log.exception("Could not push article into the kafka topic")
         return item
 
     def close_spider(self):
