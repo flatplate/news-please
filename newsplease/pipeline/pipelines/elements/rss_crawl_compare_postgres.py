@@ -55,7 +55,7 @@ class RSSCrawlComparePostgres(object):
 
             if old_version is not None and (datetime.datetime.strptime(
                     item['download_date'], "%y-%m-%d %H:%M:%S") -
-                                            old_version[1]) \
+                                            old_version[0]) \
                     < datetime.timedelta(hours=self.delta_time):
                 # Compare the two download dates. index 3 of old_version
                 # corresponds to the download_date attribute in the DB
@@ -87,5 +87,5 @@ class RSSCrawlComparePostgres(object):
                     and datetime.datetime.now() - old_version[0] < datetime.timedelta(hours=self.delta_time):
                 # Compare the two download dates. index 3 of old_version
                 # corresponds to the download_date attribute in the DB
-                self.log.info("Ignoring request, article in DB too recent")
+                self.log.debug("Ignoring request, article in DB too recent")
                 raise IgnoreRequest("Article in DB too recent. Not downloading.")
