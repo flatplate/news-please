@@ -54,7 +54,7 @@ class RSSCrawlComparePostgres(object):
             old_version = self.cursor.fetchone()
 
             if old_version is not None and (datetime.datetime.strptime(
-                    item['download_date'], "%y-%m-%d %H:%M:%S") -
+                    item['download_date'], "%Y-%m-%d %H:%M:%S") -
                                             old_version[0]) \
                     < datetime.timedelta(hours=self.delta_time):
                 # Compare the two download dates. index 3 of old_version
