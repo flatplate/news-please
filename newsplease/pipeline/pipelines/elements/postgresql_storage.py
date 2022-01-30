@@ -113,6 +113,10 @@ class PostgresqlStorage(ExtractedInformationStorage):
 
         # Add the new version of the article to the CurrentVersion table
         current_version_list = ExtractedInformationStorage.extract_relevant_info(item)
+        if old_version is not None and not ExtractedInformationStorage.values_changed(
+                old_version_list, current_version_list):
+            return
+
         current_version_list['ancestor'] = ancestor
         current_version_list['descendant'] = 0
         current_version_list['version'] = version

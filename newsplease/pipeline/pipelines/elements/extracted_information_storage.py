@@ -59,6 +59,14 @@ class ExtractedInformationStorage(object):
         return article
 
     @staticmethod
+    def values_changed(olditem, newitem):
+        ignored_keys = {'date_download', 'date_modify', 'version', 'ancestor', 'descendant', 'db_id'}
+        for key, value in newitem.items():
+            if key not in ignored_keys and olditem.get(key) != value:
+                return True
+        return False
+
+    @staticmethod
     def datestring_to_date(text):
         if text:
             return dateparser.parse(text)
